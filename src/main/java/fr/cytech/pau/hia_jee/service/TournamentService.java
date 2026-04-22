@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import fr.cytech.pau.hia_jee.model.*;
+import fr.cytech.pau.hia_jee.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import fr.cytech.pau.hia_jee.model.Match;
-import fr.cytech.pau.hia_jee.model.StatusTournament;
-import fr.cytech.pau.hia_jee.model.Team;
-import fr.cytech.pau.hia_jee.model.Tournament;
 import fr.cytech.pau.hia_jee.repository.MatchRepository;
 import fr.cytech.pau.hia_jee.repository.TournamentRepository;
 
@@ -19,6 +18,12 @@ public class TournamentService {
 
     private final TournamentRepository tRepo;
     private final MatchRepository mRepo;
+
+    @Autowired
+    private AchievementService achievementService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public TournamentService(TournamentRepository tRepo, MatchRepository mRepo) {
         this.tRepo = tRepo;
@@ -142,7 +147,13 @@ public class TournamentService {
         match.setScoreB(scoreB);
         Team winner = (scoreA > scoreB) ? match.getTeamA() : match.getTeamB();
         match.setWinner(winner);
-        mRepo.save(match); 
+        mRepo.save(match);
+
+        if (winner != null && winner.getLeader() != null) {
+            User captain = winner.getLeader();
+            achievementService.unlockAchievement(captain, "Primer victoria");
+            userRepository.save(captain);
+        }
 
         // Propagation au match suivant
         Match nextMatch = match.getNextMatch();
@@ -164,6 +175,12 @@ public class TournamentService {
             Tournament tournament = match.getTournament();
             tournament.setStatus(StatusTournament.TERMINE);
             tRepo.save(tournament);
+
+            if (winner != null && winner.getLeader() != null) {
+                User champion = winner.getLeader();
+                achievementService.unlockAchievement(champion, "Campeón");
+                userRepository.save(champion);
+            }
         }
     }
 

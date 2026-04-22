@@ -1,6 +1,8 @@
 package fr.cytech.pau.hia_jee.model;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entité représentant un Utilisateur de l'application (Joueur ou Admin).
@@ -46,6 +48,14 @@ public class User {
     @JoinColumn(name = "team_id") 
     private Team team;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_achievements",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "achievement_id")
+    )
+    private Set<Achievement> achievements = new HashSet<>();
+
     // --- CONSTRUCTEURS ---
     public User() {}
 
@@ -71,4 +81,7 @@ public class User {
 
     public Team getTeam() { return team; }
     public void setTeam(Team team) { this.team = team; }
+
+    public Set<Achievement> getAchievements() { return achievements; }
+    public void setAchievements(Set<Achievement> achievements) { this.achievements = achievements; }
 }
