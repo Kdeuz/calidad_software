@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
 class User {
 +Long id
@@ -33,3 +34,4 @@ class Tournament {
     Team "1" -- "n" User : members
     Tournament "1" -- "n" Match : contains
     Match "n" -- "1" Team : competes
+```
