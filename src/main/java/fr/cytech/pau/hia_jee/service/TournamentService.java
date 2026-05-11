@@ -30,6 +30,9 @@ public class TournamentService {
     @Autowired
     private TeamRepository teamRepository;
 
+    @Autowired
+    private EloService eloService;
+
     public TournamentService(TournamentRepository tRepo, MatchRepository mRepo) {
         this.tRepo = tRepo;
         this.mRepo = mRepo;
@@ -137,6 +140,7 @@ public class TournamentService {
 
     @Transactional
     public void enterScore(Long matchId, int scoreA, int scoreB) {
+
         Match match = mRepo.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match introuvable"));
 
@@ -147,6 +151,7 @@ public class TournamentService {
         if (scoreA == scoreB) {
             throw new RuntimeException("Match nul interdit dans un arbre ! Il faut un vainqueur.");
         }
+
 
         // Se guarda el score
         match.setScoreA(scoreA);
@@ -215,6 +220,29 @@ public class TournamentService {
                     userRepository.save(champion);
                 }
             }
+        }
+
+        // 🔥 CÁLCULO DE ELO TRAS EL PARTIDO 🔥
+        int oldEloA = match.getTeamA().getElo();
+        int oldEloB = match.getTeamB().getElo();
+
+        // Nuevo ELO para equipos
+        int newEloA = eloService.calculateNewRating(oldEloA, oldEloB, scoreA > scoreB);
+        int newEloB = eloService.calculateNewRating(oldEloB, oldEloA, scoreB > scoreA);
+
+        match.getTeamA().setElo(newEloA);
+        match.getTeamB().setElo(newEloB);
+        teamRepository.save(match.getTeamA());
+        teamRepository.save(match.getTeamB());
+
+        //Propagar el ELO a los jugadores (promedio o individual)
+        for(User m : match.getTeamA().getMembers()) {
+            m.setElo(eloService.calculateNewRating(m.getElo(), oldEloB, scoreA > scoreB));
+            userRepository.save(m);
+        }
+        for(User m : match.getTeamB().getMembers()) {
+            m.setElo(eloService.calculateNewRating(m.getElo(), oldEloA, scoreB > scoreA));
+            userRepository.save(m);
         }
     }
 

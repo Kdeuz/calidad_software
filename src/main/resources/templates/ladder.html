@@ -1,35 +1,93 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
-      th:replace="~{fragments/layout :: layout(title='Classement - À venir', content=~{::content})}">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(title='Classement Global', content=~{::content})}">
 <body>
 
 <div th:fragment="content">
-    <div class="container d-flex flex-column align-items-center justify-content-center text-center py-5" style="min-height: 60vh;">
-        
-        <div class="mb-4 position-relative">
-            <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center shadow-lg" 
-                 style="width: 120px; height: 120px; border: 4px solid #dc3545;">
-                <i class="bi bi-trophy-fill text-warning" style="font-size: 4rem;"></i>
+    <div class="container py-5">
+
+        <div class="d-flex align-items-center mb-4 pb-2 border-bottom border-danger border-3">
+            <div class="bg-dark rounded-circle d-flex align-items-center justify-content-center me-3 shadow"
+                 style="width: 60px; height: 60px;">
+                <i class="bi bi-bar-chart-line-fill text-warning fs-3"></i>
+            </div>
+            <div>
+                <h1 class="fw-bold text-uppercase fst-italic mb-0">
+                    Classement <span class="text-danger">Global</span>
+                </h1>
+                <p class="text-muted mb-0 small text-uppercase fw-bold">Top Équipes par système ELO</p>
             </div>
         </div>
 
-        <h1 class="fw-bold text-uppercase fst-italic display-4 mb-3">
-            Classement <span class="text-danger">À Venir</span>
-        </h1>
+        <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark text-uppercase small">
+                <tr>
+                    <th class="ps-4 py-3" style="width: 10%;">Pos.</th>
+                    <th class="py-3" style="width: 30%;">Équipe</th>
+                    <th class="py-3 text-center" style="width: 15%;">Jeu</th>
+                    <th class="py-3 text-center" style="width: 15%;">W / L</th>
+                    <th class="py-3 text-center" style="width: 15%;">Tournois Gagnés</th>
+                    <th class="py-3 text-center text-warning" style="width: 15%;">
+                        <i class="bi bi-star-fill"></i> ELO
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="bg-white">
 
-        <p class="lead text-muted mb-5 col-md-8">
-            La saison n'a pas encore commencé !<br>
-            Le système de classement (Ladder) est en cours de développement par nos ingénieurs. 
-            Préparez votre équipe, la compétition arrive bientôt.
-        </p>
+                <tr th:each="t, iter : ${teams}" class="border-bottom">
 
-        <div class="d-flex gap-3">
-            <a th:href="@{/}" class="btn btn-outline-secondary rounded-0 fw-bold text-uppercase px-4">
-                <i class="bi bi-house-door-fill"></i> Accueil
-            </a>
-            <a th:href="@{/teams}" class="btn btn-danger rounded-0 fw-bold text-uppercase px-4 shadow">
-                <i class="bi bi-people-fill"></i> Voir les équipes
-            </a>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center justify-content-center bg-light rounded-circle fw-bold border"
+                             style="width: 40px; height: 40px; font-size: 1.1rem;"
+                             th:classappend="${iter.index == 0 ? 'border-warning text-warning shadow-sm' :
+                                                 (iter.index == 1 ? 'border-secondary text-secondary shadow-sm' :
+                                                 (iter.index == 2 ? 'border-danger text-danger shadow-sm' : 'border-light text-muted'))}">
+                            <span th:if="${iter.index == 0}">🥇</span>
+                            <span th:if="${iter.index == 1}">🥈</span>
+                            <span th:if="${iter.index == 2}">🥉</span>
+                            <span th:if="${iter.index > 2}" th:text="${iter.count}"></span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <a th:href="@{/teams/{id}(id=${t.id})}" class="text-decoration-none fw-bold text-dark hover-effect d-flex align-items-center gap-2">
+                            <img th:src="${t.logoUrl != null && !t.logoUrl.isEmpty() ? t.logoUrl : 'https://placehold.co/30x30/333/FFF?text=' + #strings.substring(t.name,0,1)}"
+                                 alt="Logo" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <span th:text="${t.name}">Nom Équipe</span>
+                        </a>
+                    </td>
+
+                    <td class="text-center text-muted fw-bold" th:text="${t.game}">JEU</td>
+
+                    <td class="text-center">
+                        <span class="text-success fw-bold" th:text="${t.wins}">0</span>
+                        <span class="text-muted mx-1">-</span>
+                        <span class="text-danger fw-bold" th:text="${t.losses}">0</span>
+                    </td>
+
+                    <td class="text-center">
+                            <span class="badge bg-warning text-dark border border-warning shadow-sm" th:if="${t.tournamentWins > 0}" style="font-size: 0.85rem;">
+                                <i class="bi bi-trophy-fill"></i> x<span th:text="${t.tournamentWins}"></span>
+                            </span>
+                        <span class="text-muted small" th:if="${t.tournamentWins == 0}">-</span>
+                    </td>
+
+                    <td class="text-center">
+                        <span class="fs-5 fw-bold text-primary" th:text="${t.elo}">1200</span>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(teams)}">
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                        Aucune équipe n'a été trouvée pour le classement.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
         </div>
 
     </div>

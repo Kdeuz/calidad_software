@@ -35,6 +35,12 @@ public class Team {
 
     private int tournamentWins = 0;
 
+    @Column(nullable = false)
+    private int elo = 1200; // Puntaje inicial estándar
+
+    public int getElo() { return elo; }
+    public void setElo(int elo) { this.elo = elo; }
+
 
     // Le nom doit être unique en base de données pour éviter les doublons
     @Column(nullable = false, unique = true)

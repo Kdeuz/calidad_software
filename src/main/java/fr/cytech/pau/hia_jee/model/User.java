@@ -23,6 +23,12 @@ public class User {
 
     private int tournamentWins = 0;
 
+    @Column(nullable = false)
+    private int elo = 1200; // Puntaje inicial estándar
+
+    public int getElo() { return elo; }
+    public void setElo(int elo) { this.elo = elo; }
+
 
     // Le nom d'utilisateur (login).
     // unique = true : La BDD empêchera physiquement d'avoir deux utilisateurs avec le même pseudo.
