@@ -8,8 +8,12 @@ public class Achievement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //(optimizando VARCHAR):
+    @Column(length = 50, nullable = false)
     private String name;
-    private String description;
+
+    @Column(length = 150)
+    private String description; // No necesitamos 255 caracteres para una descripción corta
     private String icon;
 
     public Achievement() {}

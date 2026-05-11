@@ -3,13 +3,7 @@ package fr.cytech.pau.hia_jee.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated; 
-import jakarta.persistence.GeneratedValue; 
-import jakarta.persistence.GenerationType; 
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 
 /**
  * Entité représentant un Partenaire / Sponsor.
@@ -22,9 +16,11 @@ public class Sponsor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 50, nullable = false)
     private String name;
 
-    private String logoUrl;     // Lien vers l'image du logo
+    @Column(length = 500)
+    private String logoUrl; // Las URLs sí necesitan ser VARCHAR más largos, pero no TEXT.
     private String websiteUrl;  // Lien vers le site vitrine du sponsor
 
     // --- GESTION DES ENUMS EN BASE DE DONNÉES ---
