@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import fr.cytech.pau.hia_jee.model.*;
 import fr.cytech.pau.hia_jee.repository.UserRepository;
+import fr.cytech.pau.hia_jee.repository.TeamRepository; // <-- AÑADIDO
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,10 @@ public class TournamentService {
     @Autowired
     private UserRepository userRepository;
 
+    // 🔥 AÑADIDO: Inyección del TeamRepository para que no marque error
+    @Autowired
+    private TeamRepository teamRepository;
+
     public TournamentService(TournamentRepository tRepo, MatchRepository mRepo) {
         this.tRepo = tRepo;
         this.mRepo = mRepo;
@@ -37,7 +42,7 @@ public class TournamentService {
     @Transactional
     public void generateBracket(Long tournamentId) {
         Tournament tournament = tRepo.findById(tournamentId)
-            .orElseThrow(() -> new RuntimeException("Tournoi introuvable"));
+                .orElseThrow(() -> new RuntimeException("Tournoi introuvable"));
 
         if (tournament.getMatches() != null) {
             mRepo.deleteAll(tournament.getMatches());
@@ -67,7 +72,7 @@ public class TournamentService {
                 match.setRound(1);
                 match.setTeamA(teamStrong);
                 match.setTeamB(teamWeak);
-                
+
                 match = mRepo.save(match);
                 barrageMatches.add(match);
             }
@@ -133,26 +138,48 @@ public class TournamentService {
     @Transactional
     public void enterScore(Long matchId, int scoreA, int scoreB) {
         Match match = mRepo.findById(matchId)
-            .orElseThrow(() -> new RuntimeException("Match introuvable"));
+                .orElseThrow(() -> new RuntimeException("Match introuvable"));
 
         if (match.getTeamA() == null || match.getTeamB() == null) {
             throw new RuntimeException("Le match n'est pas prêt (il manque une équipe).");
         }
-        
+
         if (scoreA == scoreB) {
             throw new RuntimeException("Match nul interdit dans un arbre ! Il faut un vainqueur.");
         }
 
+        // Se guarda el score
         match.setScoreA(scoreA);
         match.setScoreB(scoreB);
-        Team winner = (scoreA > scoreB) ? match.getTeamA() : match.getTeamB();
-        match.setWinner(winner);
+
+        // Se define el ganador
+        Team winnerTeam = (scoreA > scoreB) ? match.getTeamA() : match.getTeamB();
+        Team loserTeam = (scoreA > scoreB) ? match.getTeamB() : match.getTeamA();
+
+        match.setWinner(winnerTeam);
         mRepo.save(match);
 
-        if (winner != null && winner.getLeader() != null) {
-            User captain = winner.getLeader();
-            achievementService.unlockAchievement(captain, "Primer victoria");
-            userRepository.save(captain);
+        // 🔥 1. ACTUALIZAR ESTADÍSTICAS DEL EQUIPO (Ya no marca error)
+        winnerTeam.setWins(winnerTeam.getWins() + 1);
+        loserTeam.setLosses(loserTeam.getLosses() + 1);
+        teamRepository.save(winnerTeam);
+        teamRepository.save(loserTeam);
+
+        // 🔥 2. LOGROS Y STATS PARA TODO EL EQUIPO GANADOR
+        if (winnerTeam.getMembers() != null) {
+            for (User member : winnerTeam.getMembers()) {
+                member.setWins(member.getWins() + 1);
+                achievementService.unlockAchievement(member, "Primer victoria");
+                userRepository.save(member);
+            }
+        }
+
+        // 🔥 3. STATS PARA EL EQUIPO PERDEDOR
+        if (loserTeam.getMembers() != null) {
+            for (User member : loserTeam.getMembers()) {
+                member.setLosses(member.getLosses() + 1);
+                userRepository.save(member);
+            }
         }
 
         // Propagation au match suivant
@@ -160,26 +187,33 @@ public class TournamentService {
 
         if (nextMatch != null) {
             Team currentA = nextMatch.getTeamA();
-            
+
             // Si A est vide OU si c'est déjà nous (update) -> on va en A
             // Sinon -> on va en B
             boolean slotAAvailableOrOurs = (currentA == null) || isTeamFromThisMatch(currentA, match);
 
-            if (slotAAvailableOrOurs) nextMatch.setTeamA(winner);
-            else nextMatch.setTeamB(winner);
-            
+            if (slotAAvailableOrOurs) nextMatch.setTeamA(winnerTeam);
+            else nextMatch.setTeamB(winnerTeam);
+
             mRepo.save(nextMatch);
-            
+
         } else {
             // FINALE
             Tournament tournament = match.getTournament();
             tournament.setStatus(StatusTournament.TERMINE);
             tRepo.save(tournament);
 
-            if (winner != null && winner.getLeader() != null) {
-                User champion = winner.getLeader();
-                achievementService.unlockAchievement(champion, "Campeón");
-                userRepository.save(champion);
+            //Sumar 1 torneo ganado al equipo
+            winnerTeam.setTournamentWins(winnerTeam.getTournamentWins() + 1);
+            teamRepository.save(winnerTeam);
+
+            //Sumar 1 torneo ganado a cada jugador y dar medalla
+            if (winnerTeam.getMembers() != null) {
+                for (User champion : winnerTeam.getMembers()) {
+                    champion.setTournamentWins(champion.getTournamentWins() + 1); // Sumar torneo
+                    achievementService.unlockAchievement(champion, "Campeón");
+                    userRepository.save(champion);
+                }
             }
         }
     }
@@ -196,7 +230,7 @@ public class TournamentService {
                 .map(match -> match.getTournament().getId())
                 .orElseThrow(() -> new RuntimeException("Match introuvable"));
     }
-    
+
     // Méthodes standard
     public List<Tournament> findAll() { return tRepo.findAll(); }
     public Optional<Tournament> findById(Long id) { return tRepo.findById(id); }

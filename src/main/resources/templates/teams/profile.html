@@ -33,8 +33,28 @@
         </div>
     </div>
 
+    <div class="row text-center mb-4 bg-dark text-white p-3 rounded-3 shadow-sm mx-0 border border-secondary">
+        <div class="col-4 border-end border-secondary">
+            <h6 class="text-uppercase small opacity-75">Tournois Gagnés (🏆)</h6>
+            <div class="fs-3 fw-bold text-warning">
+                <i class="bi bi-star-fill"></i> <span th:text="${team.tournamentWins}">0</span>
+            </div>
+        </div>
+        <div class="col-4 border-end border-secondary">
+            <h6 class="text-uppercase small opacity-75">Victoires (W)</h6>
+            <div class="fs-3 fw-bold text-success">
+                <i class="bi bi-controller"></i> <span th:text="${team.wins}">0</span>
+            </div>
+        </div>
+        <div class="col-4">
+            <h6 class="text-uppercase small opacity-75">Défaites (L)</h6>
+            <div class="fs-3 fw-bold text-danger">
+                <i class="bi bi-x-octagon-fill"></i> <span th:text="${team.losses}">0</span>
+            </div>
+        </div>
+    </div>
     <div class="row g-4">
-        
+
         <div class="col-lg-8">
             <div class="card shadow border-0 h-100">
                 <div class="card-header bg-white py-3 border-bottom border-danger border-2">
@@ -47,7 +67,9 @@
                                 <i class="bi bi-person-fill fs-4"></i>
                             </div>
                             <div>
-                                <h5 class="mb-0 fw-bold text-dark" th:text="${member.username}">Pseudo</h5>
+                                <h5 class="mb-0 fw-bold">
+                                    <a th:href="@{/players/{id}(id=${member.id})}" class="text-primary text-decoration-none text-uppercase" th:text="${member.username}">Pseudo</a>
+                                </h5>
                                 <small class="text-uppercase text-muted" th:text="${member.role != null ? member.role : 'Membre'}">ROLE</small>
                             </div>
                         </div>
@@ -56,7 +78,7 @@
                             <span th:if="${team.leader != null and team.leader.id == member.id}" class="badge bg-warning text-dark">
                                 <i class="bi bi-star-fill"></i> CHEF
                             </span>
-                            
+
                             <span th:if="${session.user != null and member.username == session.user.username}"
                                   class="badge bg-success-subtle text-success border border-success">
                                 <i class="bi bi-person-check-fill"></i> MOI
@@ -79,7 +101,7 @@
         </div>
 
         <div class="col-lg-4">
-            
+
             <div class="card shadow border-0 mb-4">
                 <div class="card-body">
                     <h5 class="card-title fw-bold text-uppercase mb-3">Action</h5>
@@ -111,7 +133,7 @@
 
                         <div th:if="${isLeader}" class="mt-3 pt-3 border-top">
                             <p class="text-danger small fw-bold mb-2 text-center"><i class="bi bi-shield-lock-fill"></i> ADMIN ÉQUIPE</p>
-                            
+
                             <div th:if="${team.inviteCode != null}" class="mb-2">
                                 <input type="hidden" id="invitePath" th:value="@{/teams/invite/{code}(code=${team.inviteCode})}">
                                 <button type="button" class="btn btn-outline-dark w-100 btn-sm" onclick="copyInviteLink()">
@@ -143,9 +165,9 @@
                         <i class="bi bi-trophy-fill text-warning"></i> Compétitions
                     </h5>
                 </div>
-                
+
                 <div class="card-body p-0">
-                    
+
                     <div th:if="${team.tournaments != null and !team.tournaments.isEmpty()}" class="p-3 border-bottom bg-light">
                         <h6 class="text-success fw-bold small text-uppercase mb-3">
                             <i class="bi bi-check-circle-fill"></i> Inscrits
@@ -158,9 +180,9 @@
                                     <span th:if="${t.status != null and t.status.name() == 'EN_COURS'}" class="badge bg-success" style="font-size: 0.6rem;">En cours</span>
                                     <span th:if="${t.status != null and t.status.name() == 'TERMINE'}" class="badge bg-dark" style="font-size: 0.6rem;">Terminé</span>
                                 </div>
-                                
+
                                 <a th:href="@{/tournaments/view/{id}(id=${t.id})}"
-                                   class="btn btn-sm btn-outline-primary" 
+                                   class="btn btn-sm btn-outline-primary"
                                    title="Voir la fiche">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
@@ -188,7 +210,7 @@
                                             </button>
                                         </form>
                                     </div>
-                                    
+
                                     <span th:if="${!isLeader}" class="badge bg-secondary text-white-50" style="font-size: 0.65rem;">
                                         Chef requis
                                     </span>
@@ -200,7 +222,7 @@
                             Aucun tournoi disponible actuellement.
                         </div>
                     </div>
-                    
+
                     <div class="card-footer text-center bg-white">
                         <a th:href="@{/tournaments}" class="btn btn-link btn-sm text-decoration-none text-danger fw-bold">
                             Voir tout le catalogue
@@ -211,19 +233,18 @@
 
         </div>
     </div>
-    
+
     <script>
         function copyInviteLink() {
             var inviteInput = document.getElementById("invitePath");
             if (!inviteInput) return;
             var fullUrl = window.location.origin + inviteInput.value;
-            
+
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(fullUrl)
                     .then(() => alert("Lien copié : " + fullUrl))
                     .catch(() => alert("Erreur copie manuelle : " + fullUrl));
             } else {
-                // Fallback pour les navigateurs non sécurisés
                 alert("Lien d'invitation : " + fullUrl);
             }
         }

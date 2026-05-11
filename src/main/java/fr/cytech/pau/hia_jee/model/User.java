@@ -18,6 +18,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private int wins = 0;
+    private int losses = 0;
+
+    private int tournamentWins = 0;
+
+
     // Le nom d'utilisateur (login).
     // unique = true : La BDD empêchera physiquement d'avoir deux utilisateurs avec le même pseudo.
     // nullable = false : Le champ est obligatoire.
@@ -84,4 +90,28 @@ public class User {
 
     public Set<Achievement> getAchievements() { return achievements; }
     public void setAchievements(Set<Achievement> achievements) { this.achievements = achievements; }
+
+    public int getWins() {
+        return wins;
+    }
+
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
+
+    public int getLosses() {
+        return losses;
+    }
+
+    public void setLosses(int losses) {
+        this.losses = losses;
+    }
+
+    public int getTournamentWins() {
+        return tournamentWins;
+    }
+
+    public void setTournamentWins(int tournamentWins) {
+        this.tournamentWins = tournamentWins;
+    }
 }

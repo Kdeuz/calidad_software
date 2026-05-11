@@ -30,6 +30,12 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private int wins = 0;
+    private int losses = 0;
+
+    private int tournamentWins = 0;
+
+
     // Le nom doit être unique en base de données pour éviter les doublons
     @Column(nullable = false, unique = true)
     private String name;
@@ -106,5 +112,29 @@ public class Team {
 
     public void setTournaments(List<Tournament> tournaments) {
         this.tournaments = tournaments;
+    }
+
+    public int getWins() {
+        return wins;
+    }
+
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
+
+    public int getLosses() {
+        return losses;
+    }
+
+    public void setLosses(int losses) {
+        this.losses = losses;
+    }
+
+    public int getTournamentWins() {
+        return tournamentWins;
+    }
+
+    public void setTournamentWins(int tournamentWins) {
+        this.tournamentWins = tournamentWins;
     }
 }
