@@ -1,17 +1,16 @@
 -- ==========================================
--- 1. USUARIOS (Jugadores de CS2 - 5 por equipo)
--- Inicializados con 0 victorias, 0 derrotas y 0 torneos ganados
+-- 1. USUARIOS (Jugadores Reales de CS2)
 -- ==========================================
 -- Admin
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins)
 SELECT 'admin', 'admin', 'ADMIN', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'admin');
 
--- Natus Vincere Players
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 's1mple', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 's1mple');
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'b1t', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'b1t');
+-- Natus Vincere Players (Alineación Campeona Major 2024)
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'aleksib', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'aleksib');
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'jL', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'jL');
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'iM', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'iM');
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'b1t', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'b1t');
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'w0nderful', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'w0nderful');
 
 -- FaZe Clan Players
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'karrigan', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'karrigan');
@@ -27,12 +26,12 @@ INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) 
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'flameZ', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'flameZ');
 INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'mezii', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'mezii');
 
--- Cyber Dragons Players
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'pro_player', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'pro_player');
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'cyber_sniper', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'cyber_sniper');
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'cyber_tank', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'cyber_tank');
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'cyber_flash', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'cyber_flash');
-INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'cyber_rush', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'cyber_rush');
+-- G2 Esports Players
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'NiKo', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'NiKo');
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'm0NESY', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'm0NESY');
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'huNter-', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'huNter-');
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'Snax', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'Snax');
+INSERT INTO app_users (username, password, role, wins, losses, tournament_wins) SELECT 'malbsMd', '1234', 'PLAYER', 0, 0, 0 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'malbsMd');
 
 -- ==========================================
 -- 2. LOGROS
@@ -42,11 +41,10 @@ INSERT INTO achievement (name, description, icon) SELECT '5 victorias seguidas',
 INSERT INTO achievement (name, description, icon) SELECT 'Campeón', 'Gana la final de un torneo', '👑' WHERE NOT EXISTS (SELECT 1 FROM achievement WHERE name = 'Campeón');
 
 -- ==========================================
--- 3. EQUIPOS
--- Inicializados con 0 victorias, 0 derrotas y 0 torneos ganados
+-- 3. EQUIPOS (Equipos Reales)
 -- ==========================================
 INSERT INTO teams (name, logo_url, game, leader_id, wins, losses, tournament_wins)
-SELECT 'Natus Vincere', 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/NaVi_logo.svg/1200px-NaVi_logo.svg.png', 'CSGO', (SELECT id FROM app_users WHERE username = 's1mple'), 0, 0, 0
+SELECT 'Natus Vincere', 'https://img.vavel.com/navi-logo-vector-1611680145653.png', 'CSGO', (SELECT id FROM app_users WHERE username = 'aleksib'), 0, 0, 0
     WHERE NOT EXISTS (SELECT 1 FROM teams WHERE name = 'Natus Vincere');
 
 INSERT INTO teams (name, logo_url, game, leader_id, wins, losses, tournament_wins)
@@ -58,19 +56,19 @@ SELECT 'Team Vitality', 'https://upload.wikimedia.org/wikipedia/en/thumb/f/f6/Te
     WHERE NOT EXISTS (SELECT 1 FROM teams WHERE name = 'Team Vitality');
 
 INSERT INTO teams (name, logo_url, game, leader_id, wins, losses, tournament_wins)
-SELECT 'Cyber Dragons', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Dragon_icon.svg/1200px-Dragon_icon.svg.png', 'CSGO', (SELECT id FROM app_users WHERE username = 'pro_player'), 0, 0, 0
-    WHERE NOT EXISTS (SELECT 1 FROM teams WHERE name = 'Cyber Dragons');
+SELECT 'G2 Esports', 'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/G2_Esports_logo.svg/1200px-G2_Esports_logo.svg.png', 'CSGO', (SELECT id FROM app_users WHERE username = 'Snax'), 0, 0, 0
+    WHERE NOT EXISTS (SELECT 1 FROM teams WHERE name = 'G2 Esports');
 
 -- ==========================================
 -- 4. VINCULACIÓN DE MIEMBROS
 -- ==========================================
-UPDATE app_users SET team_id = (SELECT id FROM teams WHERE name = 'Natus Vincere') WHERE username IN ('s1mple', 'b1t', 'aleksib', 'jL', 'iM');
+UPDATE app_users SET team_id = (SELECT id FROM teams WHERE name = 'Natus Vincere') WHERE username IN ('aleksib', 'jL', 'iM', 'b1t', 'w0nderful');
 UPDATE app_users SET team_id = (SELECT id FROM teams WHERE name = 'FaZe Clan') WHERE username IN ('karrigan', 'ropz', 'broky', 'rain', 'frozen');
 UPDATE app_users SET team_id = (SELECT id FROM teams WHERE name = 'Team Vitality') WHERE username IN ('apEX', 'ZywOo', 'Spinx', 'flameZ', 'mezii');
-UPDATE app_users SET team_id = (SELECT id FROM teams WHERE name = 'Cyber Dragons') WHERE username IN ('pro_player', 'cyber_sniper', 'cyber_tank', 'cyber_flash', 'cyber_rush');
+UPDATE app_users SET team_id = (SELECT id FROM teams WHERE name = 'G2 Esports') WHERE username IN ('NiKo', 'm0NESY', 'huNter-', 'Snax', 'malbsMd');
 
 -- ==========================================
--- 5. TORNEO DE CSGO (Estado abierto)
+-- 5. TORNEO DE CS2
 -- ==========================================
 INSERT INTO tournaments (name, status, game)
 SELECT 'CS2 Major Guadalajara 2026', 'OUVERT', 'CSGO'
@@ -82,7 +80,7 @@ SELECT 'CS2 Major Guadalajara 2026', 'OUVERT', 'CSGO'
 INSERT INTO tournament_teams (tournament_id, team_id)
 SELECT tr.id, t.id FROM tournaments tr, teams t
 WHERE tr.name = 'CS2 Major Guadalajara 2026'
-  AND t.name IN ('Natus Vincere', 'FaZe Clan', 'Team Vitality', 'Cyber Dragons')
+  AND t.name IN ('Natus Vincere', 'FaZe Clan', 'Team Vitality', 'G2 Esports')
   AND NOT EXISTS (
     SELECT 1 FROM tournament_teams tt
     WHERE tt.tournament_id = tr.id AND tt.team_id = t.id
