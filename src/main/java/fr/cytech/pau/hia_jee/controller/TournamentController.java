@@ -111,4 +111,20 @@ public class TournamentController {
 
         return "redirect:/tournaments/tree/" + tournamentId;
     }
+
+    // ============================================================
+    // 6. SUPPRESSION DE TOURNOI
+    // ============================================================
+
+    @PostMapping("/{id}/delete")
+    public String deleteTournament(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            tournamentService.deleteTournament(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Tournoi supprimé avec succès !");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la suppression : " + e.getMessage());
+        }
+        // Redirige vers le catalogue public après suppression
+        return "redirect:/tournaments";
+    }
 }

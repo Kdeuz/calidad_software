@@ -284,6 +284,23 @@ public class TournamentService {
                 .orElseThrow(() -> new RuntimeException("Match introuvable"));
     }
 
+    @Transactional
+    public void deleteTournament(Long tournamentId) {
+        Tournament tournament = tRepo.findById(tournamentId)
+                .orElseThrow(() -> new RuntimeException("Tournoi introuvable"));
+
+        // 1. D'abord, on supprime tous les matchs associés au tournoi pour éviter les erreurs de clés étrangères
+        if (tournament.getMatches() != null && !tournament.getMatches().isEmpty()) {
+            mRepo.deleteAll(tournament.getMatches());
+            tournament.getMatches().clear();
+        }
+
+        // 2. Ensuite, on supprime le tournoi
+        tRepo.delete(tournament);
+    }
+    
+    
+
     // Méthodes standard
     public List<Tournament> findAll() { return tRepo.findAll(); }
     public Optional<Tournament> findById(Long id) { return tRepo.findById(id); }

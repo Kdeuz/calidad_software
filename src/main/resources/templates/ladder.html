@@ -19,6 +19,15 @@
             </div>
         </div>
 
+        <ul class="nav nav-tabs mb-4 border-danger">
+            <li class="nav-item" th:each="g : ${games}">
+                <a class="nav-link fw-bold text-uppercase"
+                   th:classappend="${g == selectedGame} ? 'active text-danger border-danger border-bottom-0' : 'text-muted border-0 hover-link'"
+                   th:href="@{/ladder(game=${g.name()})}"
+                   th:text="${g.displayName}">JEU</a>
+            </li>
+        </ul>
+
         <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-dark text-uppercase small">
@@ -33,10 +42,7 @@
                     </th>
                 </tr>
                 </thead>
-                <tbody class="bg-white">
-
-                <tr th:each="t, iter : ${teams}" class="border-bottom">
-
+                <tbody class="bg-white text-dark"> <tr th:each="t, iter : ${teams}" class="border-bottom text-dark">
                     <td class="ps-4">
                         <div class="d-flex align-items-center justify-content-center bg-light rounded-circle fw-bold border"
                              style="width: 40px; height: 40px; font-size: 1.1rem;"
@@ -53,7 +59,7 @@
                     <td>
                         <a th:href="@{/teams/{id}(id=${t.id})}" class="text-decoration-none fw-bold text-dark hover-effect d-flex align-items-center gap-2">
                             <img th:src="${t.logoUrl != null && !t.logoUrl.isEmpty() ? t.logoUrl : 'https://placehold.co/30x30/333/FFF?text=' + #strings.substring(t.name,0,1)}"
-                                 alt="Logo" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                 alt="Logo" class="rounded-circle bg-dark" style="width: 30px; height: 30px; object-fit: contain;">
                             <span th:text="${t.name}">Nom Équipe</span>
                         </a>
                     </td>
@@ -76,13 +82,12 @@
                     <td class="text-center">
                         <span class="fs-5 fw-bold text-primary" th:text="${t.elo}">1200</span>
                     </td>
-
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(teams)}">
                     <td colspan="6" class="text-center py-5 text-muted">
-                        <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
-                        Aucune équipe n'a été trouvée pour le classement.
+                        <i class="bi bi-info-circle fs-4 d-block mb-2 text-secondary"></i>
+                        Aucune équipe n'a été trouvée pour ce jeu dans le classement.
                     </td>
                 </tr>
 
