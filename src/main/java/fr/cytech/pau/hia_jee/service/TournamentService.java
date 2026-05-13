@@ -56,46 +56,71 @@ public class TournamentService {
         int n = rankedTeams.size();
         if (n < 2) throw new RuntimeException("Il faut au moins 2 équipes !");
 
-        int pBis = Integer.highestOneBit(n);
-        if (n == pBis * 2) pBis = n;
+        // 1. Encontrar la siguiente potencia de 2 perfecta (ej. si hay 9 equipos -> 16)
+        int N = 1;
+        while (N < n) {
+            N *= 2;
+        }
 
-        int m = n - pBis;
-        int nbDirectQualified = pBis - m;
+        int numMatchesRound1 = N / 2;
+        int numByes = N - n; // Equipos que avanzan automáticamente
 
-        // ÉTAPE A : BARRAGES
-        List<Match> barrageMatches = new ArrayList<>();
-        if (m > 0) {
-            List<Team> barragistes = rankedTeams.subList(nbDirectQualified, n);
-            for (int i = 0; i < m; i++) {
-                Team teamStrong = barragistes.get(i);
-                Team teamWeak = barragistes.get(barragistes.size() - 1 - i);
+        List<Match> round1Matches = new ArrayList<>();
+        int teamIndex = 0;
 
-                Match match = new Match();
-                match.setTournament(tournament);
-                match.setRound(1);
-                match.setTeamA(teamStrong);
-                match.setTeamB(teamWeak);
+        // 2. Generar Ronda 1 con Byes reales garantizados
+        for (int i = 0; i < numMatchesRound1; i++) {
+            Match match = new Match();
+            match.setTournament(tournament);
+            match.setRound(1);
 
-                match = mRepo.save(match);
-                barrageMatches.add(match);
+            match.setTeamA(rankedTeams.get(teamIndex++));
+
+            if (i < numByes) {
+                // Esto es un BYE: El equipo B es NULO, por ende la plantilla HTML dirá "Bye"
+                match.setTeamB(null);
+                match.setWinner(match.getTeamA()); // Avanza automáticamente
+                match.setScoreA(0);
+                match.setScoreB(0);
+            } else {
+                // Partido normal de la ronda 1
+                match.setTeamB(rankedTeams.get(teamIndex++));
             }
+
+            match = mRepo.save(match);
+            round1Matches.add(match);
         }
 
-        // ÉTAPE B : ROUND SUIVANT
-        List<Object> round2Slots = new ArrayList<>();
-        for (int i = 0; i < nbDirectQualified; i++) {
-            round2Slots.add(rankedTeams.get(i));
-        }
-        round2Slots.addAll(barrageMatches);
-
-        // ÉTAPE C : RÉCURSION
-        int currentRoundNumber = (m > 0) ? 2 : 1;
-        List<Match> currentRoundMatches = generateRoundMatches(tournament, currentRoundNumber, round2Slots);
+        // 3. Generar Rondas subsecuentes uniendo los ganadores de la anterior
+        List<Match> currentRoundMatches = round1Matches;
+        int currentRoundNumber = 1;
 
         while (currentRoundMatches.size() > 1) {
             currentRoundNumber++;
-            List<Object> winnersSlots = new ArrayList<>(currentRoundMatches);
-            currentRoundMatches = generateRoundMatches(tournament, currentRoundNumber, winnersSlots);
+            List<Match> nextRoundMatches = new ArrayList<>();
+
+            for (int i = 0; i < currentRoundMatches.size(); i += 2) {
+                Match prev1 = currentRoundMatches.get(i);
+                Match prev2 = currentRoundMatches.get(i + 1);
+
+                Match newMatch = new Match();
+                newMatch.setTournament(tournament);
+                newMatch.setRound(currentRoundNumber);
+
+                // Si hubo un Bye en el round anterior, propagar equipo inmediatamente a la vista HTML
+                if (prev1.getWinner() != null) newMatch.setTeamA(prev1.getWinner());
+                if (prev2.getWinner() != null) newMatch.setTeamB(prev2.getWinner());
+
+                newMatch = mRepo.save(newMatch);
+
+                prev1.setNextMatch(newMatch);
+                prev2.setNextMatch(newMatch);
+                mRepo.save(prev1);
+                mRepo.save(prev2);
+
+                nextRoundMatches.add(newMatch);
+            }
+            currentRoundMatches = nextRoundMatches;
         }
 
         tournament.setStatus(StatusTournament.EN_COURS);

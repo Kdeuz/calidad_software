@@ -1,5 +1,6 @@
 package fr.cytech.pau.hia_jee.controller;
 
+import fr.cytech.pau.hia_jee.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException; // IMPORTANT : Pour gérer l'erreur SQL
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,7 @@ public class TeamController {
     @Autowired private TeamService teamService;
     @Autowired private UserService userService;
     @Autowired private UserRepository userRepository;       // Utile pour rafraîchir les données User
+    @Autowired private TeamRepository teamRepository;
     @Autowired private TournamentRepository tournamentRepository; // Utile pour lister les tournois dispos
 
     // ============================================================
@@ -230,6 +232,27 @@ public class TeamController {
     // 4. ACTIONS (Rejoindre, Quitter, Dissoudre...)
     // ============================================================
 
+    @PostMapping("/edit-logo")
+    public String updateTeamLogo(@RequestParam String logoUrl, HttpSession session, RedirectAttributes redirectAttributes) {
+        User sessionUser = (User) session.getAttribute("user");
+        if (sessionUser == null) return "redirect:/login";
+
+        User dbUser = userRepository.findById(sessionUser.getId()).orElse(null);
+        if (dbUser != null && dbUser.getTeam() != null) {
+            Team team = dbUser.getTeam();
+
+            // Verificación de seguridad: Solo el capitán edita
+            if (team.getLeader().getId().equals(dbUser.getId())) {
+                team.setLogoUrl(logoUrl);
+                teamRepository.save(team);
+                redirectAttributes.addFlashAttribute("success", "Logo de l'équipe mis à jour !");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Seul le chef peut modifier le logo.");
+            }
+        }
+        return "redirect:/teams/my";
+    }
+
     /**
      * Action pour rejoindre une équipe via le bouton "Rejoindre".
      */
@@ -395,4 +418,18 @@ public class TeamController {
             return "redirect:/teams";
         }
     }
+
+//    @PostMapping("/teams/edit-logo")
+//    public String updateTeamLogo(@RequestParam String logoUrl, HttpSession session) {
+//        User user = (User) session.getAttribute("user");
+//        if (user != null && user.getTeam() != null) {
+//            Team team = user.getTeam();
+//            // Solo el líder puede cambiar el logo
+//            if (team.getLeader().getId().equals(user.getId())) {
+//                team.setLogoUrl(logoUrl);
+//                teamRepository.save(team);
+//            }
+//        }
+//        return "redirect:/teams/my";
+//    }
 }

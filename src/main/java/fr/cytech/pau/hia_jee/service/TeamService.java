@@ -118,30 +118,32 @@ public class TeamService {
      */
     @Transactional
     public void registerTeamToTournament(Long teamId, Long tournamentId, User requester) {
-        Team team = findById(teamId);
-        Tournament tournament = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new RuntimeException("Tournoi introuvable"));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Équipe introuvable."));
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new RuntimeException("Tournoi introuvable."));
 
-        // --- VALIDATIONS MÉTIER ---
-
-        // 1. Sécurité : Seul le chef peut inscrire l'équipe
+        //Verificar si el usuario es el líder
         if (!team.getLeader().getId().equals(requester.getId())) {
-            throw new RuntimeException("Seul le capitaine peut inscrire l'équipe.");
-        }
-        
-        // 2. Cohérence : Le jeu de l'équipe doit correspondre au jeu du tournoi
-        if (team.getGame() != tournament.getGame()) {
-            throw new RuntimeException("Jeu incompatible.");
-        }
-        
-        // 3. Doublon : L'équipe est-elle déjà inscrite ?
-        if (tournament.getTeams().contains(team)) {
-            throw new RuntimeException("Déjà inscrit.");
+            throw new RuntimeException("Seul le chef d'équipe peut inscrire l'équipe.");
         }
 
-        // On ajoute l'équipe à la liste des participants du tournoi.
-        // il suffit de sauvegarder le tournoi pour que la ligne soit créée dans la table de jointure.
+        //REGLA DE MÍNIMO DE JUGADORES
+        int requiredPlayers = 0;
+        String gameName = tournament.getGame().name();
+
+        if (gameName.equals("CSGO") || gameName.equals("LOL") || gameName.equals("VALORANT")) {
+            requiredPlayers = 5;
+        } else if (gameName.equals("ROCKET_LEAGUE")) {
+            requiredPlayers = 3;
+        }
+
+        if (team.getMembers() == null || team.getMembers().size() < requiredPlayers) {
+            throw new RuntimeException("Votre équipe n'a pas le nombre minimum de joueurs (" + requiredPlayers + ") requis pour le jeu " + gameName + ".");
+        }
+
+        //Inscribir
         tournament.getTeams().add(team);
         tournamentRepository.save(tournament);
     }
+
+
 }

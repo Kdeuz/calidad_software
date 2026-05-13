@@ -29,6 +29,11 @@ public class User {
     public int getElo() { return elo; }
     public void setElo(int elo) { this.elo = elo; }
 
+    private String profileImageUrl;
+
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+
 
     // Le nom d'utilisateur (login).
     // unique = true : La BDD empêchera physiquement d'avoir deux utilisateurs avec le même pseudo.

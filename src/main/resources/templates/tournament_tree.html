@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: layout('Arbre du Tournoi', ~{::section})}">
-      
+
 <head>
 </head>
 
@@ -9,139 +9,69 @@
 
 <section>
     <style>
-        .bracket-container {
-            display: flex; flex-direction: row; justify-content: flex-start;
-            overflow-x: auto; padding: 40px 20px; gap: 60px;
-            background-color: #1a1d20; border-radius: 10px; min-height: 400px;
-        }
-        .round-column {
-            display: flex; flex-direction: column; justify-content: space-around;
-            min-width: 250px; position: relative;
-        }
-        .round-title {
-            text-align: center; color: #ff4500; font-weight: bold; text-transform: uppercase;
-            margin-bottom: 20px; font-size: 1.2rem;
-        }
-        .match-card {
-            border: 1px solid #444; border-left: 4px solid #dc3545;
-            border-radius: 6px; background-color: #2c3034; color: white;
-            padding: 12px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            position: relative; z-index: 1;
-        }
-        .match-card::after {
-            content: ""; position: absolute; right: -60px; top: 50%;
-            width: 60px; height: 2px; background: #555; z-index: 0;
-        }
+        .bracket-container { display: flex; flex-direction: row; justify-content: flex-start; overflow-x: auto; padding: 40px 20px; gap: 60px; background-color: #1a1d20; border-radius: 10px; min-height: 400px; }
+        .round-column { display: flex; flex-direction: column; justify-content: space-around; min-width: 250px; position: relative; }
+        .round-title { text-align: center; color: #ff4500; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; font-size: 1.2rem; }
+        .match-card { border: 1px solid #444; border-left: 4px solid #dc3545; border-radius: 6px; background-color: #2c3034; color: white; padding: 12px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative; z-index: 1; }
+        .match-card::after { content: ""; position: absolute; right: -60px; top: 50%; width: 60px; height: 2px; background: #555; z-index: 0; }
         .round-column:last-child .match-card::after { display: none; }
         .text-winner { color: #00ff00 !important; text-shadow: 0 0 5px #00ff00; }
     </style>
 
     <div class="container mt-4">
-        
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="text-danger fw-bold">
-                <i class="bi bi-diagram-3"></i> <span th:text="${tournament.game} + ' - Arbre'">Tournoi</span>
-            </h1>
-            
-            <a th:href="${session.user != null && session.user.role.name() == 'ADMIN'} ? @{/admin/tournaments} : @{/tournaments}" 
-               class="btn btn-outline-light">
-                <i class="bi bi-arrow-left"></i> Retour
-            </a>
+            <h1 class="text-danger fw-bold"><i class="bi bi-diagram-3"></i> <span th:text="${tournament.game} + ' - Arbre'">Tournoi</span></h1>
+            <a th:href="${session.user != null && session.user.role.name() == 'ADMIN'} ? @{/admin/tournaments} : @{/tournaments}" class="btn btn-outline-light"><i class="bi bi-arrow-left"></i> Retour</a>
         </div>
 
-        <div th:if="${session.user != null && session.user.role.name() == 'ADMIN' 
-                      && (tournament.matches == null || tournament.matches.isEmpty()) 
-                      && (tournament.teams == null || tournament.teams.size() < 2)}" 
-             class="alert alert-danger text-center shadow-sm">
-            <h4 class="alert-heading"><i class="bi bi-exclamation-octagon-fill"></i> Pas assez de participants</h4>
-            <p class="mb-0">
-                Il faut au moins <strong>2 équipes</strong> pour générer un arbre. 
-                <br>
-                Actuellement : <span class="badge bg-white text-danger fs-6" th:text="${tournament.teams != null ? tournament.teams.size() : 0}">0</span> équipe(s) inscrite(s).
-            </p>
-        </div>
-
-        <div class="container mt-3">
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Oups !</strong> <span th:text="${errorMessage}">Message d'erreur par défaut</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i> <strong>Succès !</strong> <span th:text="${successMessage}">Action réussie</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-        <div th:if="${session.user != null && session.user.role.name() == 'ADMIN' 
-                      && (tournament.matches == null || tournament.matches.isEmpty()) 
-                      && (tournament.teams != null && tournament.teams.size() >= 2)}" 
-             class="alert alert-warning text-center">
-            
-            <p class="mb-2">
-                <i class="bi bi-info-circle-fill"></i> 
-                L'arbre n'a pas encore été généré, mais 
-                <strong><span th:text="${tournament.teams.size()}">X</span> équipes</strong> sont prêtes.
-            </p>
-            
+        <div th:if="${session.user != null && session.user.role.name() == 'ADMIN' && (tournament.matches == null || tournament.matches.isEmpty())}" class="alert alert-warning text-center">
+            <p class="mb-2"><i class="bi bi-info-circle-fill"></i> L'arbre n'a pas encore été généré, mais <strong><span th:text="${tournament.teams.size()}">X</span> équipes</strong> sont prêtes.</p>
             <form th:action="@{/admin/tournaments/{id}/generate(id=${tournament.id})}" method="post">
-                <button class="btn btn-danger fw-bold shadow px-4">
-                    <i class="bi bi-lightning-fill"></i> GÉNÉRER L'ARBRE MAINTENANT
-                </button>
+                <button class="btn btn-danger fw-bold shadow px-4"><i class="bi bi-lightning-fill"></i> GÉNÉRER L'ARBRE MAINTENANT</button>
             </form>
         </div>
 
         <hr class="border-secondary">
 
         <div class="bracket-container shadow-lg" th:if="${matchesByRound != null and !matchesByRound.isEmpty()}">
-            
             <div th:each="roundEntry : ${matchesByRound}" class="round-column">
                 <div class="round-title" th:text="'Round ' + ${roundEntry.key}">Round 1</div>
-                
+
                 <div th:each="match : ${roundEntry.value}" class="match-card">
-                    
+
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span th:text="${match.teamA != null ? match.teamA.name : '...'}"
-                              th:classappend="${match.winner == match.teamA} ? 'text-winner fw-bold' : 'text-white-50'">
-                        </span>
+                        <span th:if="${match.teamA == null}" class="text-white-50 small fst-italic">TBD (À définir)</span>
+                        <span th:if="${match.teamA != null}" th:text="${match.teamA.name}"
+                              th:classappend="${match.winner != null and match.teamA != null and match.winner.id == match.teamA.id} ? 'text-winner fw-bold' : 'text-white-50'"></span>
                         <span class="badge bg-dark border border-secondary" th:text="${match.scoreA}">0</span>
                     </div>
-                    
+
                     <div class="d-flex justify-content-between align-items-center">
-                        <span th:if="${match.teamB == null}" class="text-muted fst-italic small">BYE (Qualifié)</span>
-                        
-                        <span th:if="${match.teamB != null}" 
-                              th:text="${match.teamB.name}"
-                              th:classappend="${match.winner == match.teamB} ? 'text-winner fw-bold' : 'text-white-50'">
-                        </span>
+                        <span th:if="${match.teamB == null and match.round == 1}" class="text-muted fst-italic small">BYE (Qualifié)</span>
+                        <span th:if="${match.teamB == null and match.round > 1}" class="text-white-50 small fst-italic">TBD (À définir)</span>
+
+                        <span th:if="${match.teamB != null}" th:text="${match.teamB.name}"
+                              th:classappend="${match.winner != null and match.teamB != null and match.winner.id == match.teamB.id} ? 'text-winner fw-bold' : 'text-white-50'"></span>
                         <span class="badge bg-dark border border-secondary" th:text="${match.scoreB}">0</span>
                     </div>
 
-                    <div th:if="${session.user != null && session.user.role.name() == 'ADMIN' && match.winner == null && match.teamA != null && match.teamB != null}" 
-                         class="mt-3 pt-2 border-top border-secondary">
-                        
+                    <div th:if="${session.user != null && session.user.role.name() == 'ADMIN' && match.winner == null && match.teamA != null && match.teamB != null}" class="mt-3 pt-2 border-top border-secondary">
                         <form th:action="@{/admin/tournaments/matches/score}" method="post" class="d-flex gap-2 justify-content-center">
-                            
                             <input type="hidden" name="matchId" th:value="${match.id}">
-
                             <input type="number" name="scoreA" class="form-control form-control-sm bg-dark text-white border-secondary text-center" placeholder="A" required style="width: 50px;">
                             <span class="text-white align-self-center">:</span>
                             <input type="number" name="scoreB" class="form-control form-control-sm bg-dark text-white border-secondary text-center" placeholder="B" required style="width: 50px;">
-                            
                             <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check"></i></button>
                         </form>
                     </div>
-                    <div th:if="${match.teamB == null}" class="mt-2 text-center">
+
+                    <div th:if="${match.teamB == null and match.round == 1}" class="mt-2 text-center">
                         <span class="badge bg-success" style="font-size: 0.7rem;">Qualifié d'office ✅</span>
                     </div>
 
                 </div>
             </div>
-        </div>
-        
-        <div th:if="${(matchesByRound == null or matchesByRound.isEmpty())}" class="text-center text-muted py-5">
-            <i class="bi bi-hourglass-split fs-1 d-block mb-3"></i>
-            <h4 class="fw-light">Le tournoi n'a pas encore commencé.</h4>
-            <p>L'arbre sera disponible dès que l'administrateur aura lancé la compétition.</p>
         </div>
 
     </div>

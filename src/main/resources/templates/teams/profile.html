@@ -15,12 +15,12 @@
     </div>
 
     <div class="p-5 mb-4 bg-dark text-white rounded-3 shadow position-relative overflow-hidden border border-secondary">
-        <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center flex-wrap gap-4">
             <img th:src="${team.logoUrl != null && !team.logoUrl.isEmpty() ? team.logoUrl : 'https://placehold.co/150x150/333/FFF?text=' + #strings.substring(team.name,0,1)}"
                  alt="Logo" class="rounded-circle border border-4 border-danger shadow"
                  style="width: 120px; height: 120px; object-fit: cover;">
 
-            <div>
+            <div class="flex-grow-1">
                 <h1 class="display-4 fw-bold text-uppercase mb-0" th:text="${team.name}">Nom Équipe</h1>
                 <div class="d-flex align-items-center gap-3 mt-2 text-white-50">
                     <span><i class="bi bi-people-fill"></i> <span th:text="${team.members != null ? team.members.size() : 0}">0</span> Membres</span>
@@ -28,6 +28,13 @@
                     <span th:if="${team.leader != null}">
                         | <i class="bi bi-star-fill text-warning"></i> Cap. <span class="text-white fw-bold" th:text="${team.leader.username}">CHEF</span>
                     </span>
+                </div>
+
+                <div th:if="${isLeader}" class="mt-3">
+                    <form th:action="@{/teams/edit-logo}" method="post" class="d-flex gap-2" style="max-width: 400px;">
+                        <input type="url" name="logoUrl" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Lien URL du nouveau logo..." required>
+                        <button type="submit" class="btn btn-sm btn-outline-warning text-uppercase fw-bold"><i class="bi bi-image"></i> Modifier</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -53,6 +60,7 @@
             </div>
         </div>
     </div>
+
     <div class="row g-4">
 
         <div class="col-lg-8">
@@ -63,9 +71,18 @@
                 <div class="list-group list-group-flush">
                     <div th:each="member : ${team.members}" class="list-group-item d-flex justify-content-between align-items-center py-3">
                         <div class="d-flex align-items-center">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3 text-secondary border" style="width: 45px; height: 45px;">
+
+                            <img th:if="${member.profileImageUrl != null and !member.profileImageUrl.isEmpty()}"
+                                 th:src="${member.profileImageUrl}"
+                                 class="rounded-circle me-3 border border-secondary object-fit-cover"
+                                 style="width: 45px; height: 45px;" alt="Profil">
+
+                            <div th:unless="${member.profileImageUrl != null and !member.profileImageUrl.isEmpty()}"
+                                 class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3 text-secondary border"
+                                 style="width: 45px; height: 45px;">
                                 <i class="bi bi-person-fill fs-4"></i>
                             </div>
+
                             <div>
                                 <h5 class="mb-0 fw-bold">
                                     <a th:href="@{/players/{id}(id=${member.id})}" class="text-primary text-decoration-none text-uppercase" th:text="${member.username}">Pseudo</a>
@@ -128,128 +145,3 @@
                               onsubmit="return confirm('Quitter cette équipe ?');">
                             <button type="submit" class="btn btn-outline-warning w-100">
                                 <i class="bi bi-box-arrow-right"></i> Quitter l'équipe
-                            </button>
-                        </form>
-
-                        <div th:if="${isLeader}" class="mt-3 pt-3 border-top">
-                            <p class="text-danger small fw-bold mb-2 text-center"><i class="bi bi-shield-lock-fill"></i> ADMIN ÉQUIPE</p>
-
-                            <div th:if="${team.inviteCode != null}" class="mb-2">
-                                <input type="hidden" id="invitePath" th:value="@{/teams/invite/{code}(code=${team.inviteCode})}">
-                                <button type="button" class="btn btn-outline-dark w-100 btn-sm" onclick="copyInviteLink()">
-                                    <i class="bi bi-share"></i> Copier lien d'invitation
-                                </button>
-                            </div>
-
-                            <form th:action="@{/teams/dissolve}" method="post"
-                                  onsubmit="return confirm('ATTENTION : Dissoudre l\'équipe ? Action irréversible.');">
-                                <button type="submit" class="btn btn-danger w-100 btn-sm fw-bold">
-                                    <i class="bi bi-trash3-fill"></i> DISSOUDRE
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div th:if="${session.user != null and !canJoin and !isMember}" class="text-center">
-                        <button class="btn btn-secondary w-100 disabled" disabled>
-                            Vous avez déjà une équipe
-                        </button>
-                        <small class="text-muted d-block mt-2">Quittez votre équipe actuelle pour rejoindre celle-ci.</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow border-0 border-top border-warning border-4">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold text-uppercase">
-                        <i class="bi bi-trophy-fill text-warning"></i> Compétitions
-                    </h5>
-                </div>
-
-                <div class="card-body p-0">
-
-                    <div th:if="${team.tournaments != null and !team.tournaments.isEmpty()}" class="p-3 border-bottom bg-light">
-                        <h6 class="text-success fw-bold small text-uppercase mb-3">
-                            <i class="bi bi-check-circle-fill"></i> Inscrits
-                        </h6>
-                        <ul class="list-group list-group-flush border rounded-2">
-                            <li th:each="t : ${team.tournaments}" class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="fw-bold d-block" th:text="${t.name}">Nom Tournoi</span>
-                                    <span th:if="${t.status != null and t.status.name() == 'OUVERT'}" class="badge bg-secondary" style="font-size: 0.6rem;">À venir</span>
-                                    <span th:if="${t.status != null and t.status.name() == 'EN_COURS'}" class="badge bg-success" style="font-size: 0.6rem;">En cours</span>
-                                    <span th:if="${t.status != null and t.status.name() == 'TERMINE'}" class="badge bg-dark" style="font-size: 0.6rem;">Terminé</span>
-                                </div>
-
-                                <a th:href="@{/tournaments/view/{id}(id=${t.id})}"
-                                   class="btn btn-sm btn-outline-primary"
-                                   title="Voir la fiche">
-                                    <i class="bi bi-eye-fill"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div th:if="${availableTournaments != null}" class="p-3">
-                        <h6 class="text-primary fw-bold small text-uppercase mb-3">
-                            <i class="bi bi-calendar-plus"></i> Ouverts (<span th:text="${team.game != null ? team.game : 'Tout'}">Jeu</span>)
-                        </h6>
-
-                        <div th:if="${!availableTournaments.isEmpty()}">
-                            <div th:each="t : ${availableTournaments}" class="card mb-2 border-secondary shadow-sm">
-                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="fw-bold small text-dark" th:text="${t.name}">Tournoi</div>
-                                        <div class="text-muted small">Statut : Ouvert</div>
-                                    </div>
-
-                                    <div th:if="${isLeader}">
-                                        <form th:action="@{/teams/register/{id}(id=${t.id})}" method="post">
-                                            <button type="submit" class="btn btn-sm btn-success fw-bold text-uppercase" style="font-size: 0.75rem;">
-                                                Rejoindre
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <span th:if="${!isLeader}" class="badge bg-secondary text-white-50" style="font-size: 0.65rem;">
-                                        Chef requis
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div th:if="${availableTournaments.isEmpty()}" class="text-center text-muted py-3 small bg-light rounded border border-dashed">
-                            Aucun tournoi disponible actuellement.
-                        </div>
-                    </div>
-
-                    <div class="card-footer text-center bg-white">
-                        <a th:href="@{/tournaments}" class="btn btn-link btn-sm text-decoration-none text-danger fw-bold">
-                            Voir tout le catalogue
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-        function copyInviteLink() {
-            var inviteInput = document.getElementById("invitePath");
-            if (!inviteInput) return;
-            var fullUrl = window.location.origin + inviteInput.value;
-
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(fullUrl)
-                    .then(() => alert("Lien copié : " + fullUrl))
-                    .catch(() => alert("Erreur copie manuelle : " + fullUrl));
-            } else {
-                alert("Lien d'invitation : " + fullUrl);
-            }
-        }
-    </script>
-
-</div>
-</body>
-</html>
