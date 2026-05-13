@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
 <head>
     <meta charset="UTF-8">
-    
-    <!-- AGREGA ESTA LÍNEA -->
+
     <meta http-equiv="Content-Language" content="fr">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +11,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- NUEVA FUENTE -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -35,23 +33,23 @@
         /* ============================================
            RESET & BASE
         ============================================ */
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            overflow-x: hidden; 
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
-        body { 
-            background-color: #f0f0f0; 
-            color: #343a40; 
+        body {
+            background-color: #f0f0f0;
+            color: #343a40;
             top: 0 !important;
             font-family: 'Poppins', sans-serif;
 
             /* Upgraded: richer layered dark background */
             background:
-                radial-gradient(ellipse 80% 50% at 20% -10%, rgba(220,53,69,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 110%, rgba(255,69,0,0.06) 0%, transparent 55%),
-                linear-gradient(165deg, #0d0d0f 0%, #141418 40%, #0f0f14 100%);
+                    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(220,53,69,0.08) 0%, transparent 60%),
+                    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(255,69,0,0.06) 0%, transparent 55%),
+                    linear-gradient(165deg, #0d0d0f 0%, #141418 40%, #0f0f14 100%);
             background-attachment: fixed;
             min-height: 100vh;
             color: #e2e2ec;
@@ -60,8 +58,8 @@
         /* ============================================
            NAVBAR — upgraded from original
         ============================================ */
-        .navbar { 
-            border-bottom: 3px solid #ff4500; 
+        .navbar {
+            border-bottom: 3px solid #ff4500;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
 
@@ -70,9 +68,9 @@
             border-bottom: 2px solid transparent !important;
             border-image: linear-gradient(90deg, transparent, #ff4500, #dc3545, transparent) 1 !important;
             box-shadow:
-                0 4px 30px rgba(0,0,0,0.7),
-                0 1px 0 rgba(255,69,0,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.03) !important;
+                    0 4px 30px rgba(0,0,0,0.7),
+                    0 1px 0 rgba(255,69,0,0.2),
+                    inset 0 1px 0 rgba(255,255,255,0.03) !important;
         }
 
         /* Animated gradient underline on navbar */
@@ -141,32 +139,32 @@
         /* ============================================
            HOVER EFFECTS (original classes, upgraded)
         ============================================ */
-        .hover-effect:hover { 
-            color: #ff4500 !important; 
-            transform: scale(1.2); 
-            transition: all 0.3s ease; 
+        .hover-effect:hover {
+            color: #ff4500 !important;
+            transform: scale(1.2);
+            transition: all 0.3s ease;
             text-shadow: 0 0 12px rgba(255,69,0,0.8);
         }
 
-        .hover-link:hover { 
-            color: #fff !important; 
-            text-decoration: underline !important; 
+        .hover-link:hover {
+            color: #fff !important;
+            text-decoration: underline !important;
         }
 
         /* ============================================
            BTN-NEON (original class, upgraded)
         ============================================ */
         .btn-neon {
-            color: #dc3545; 
-            border: 2px solid #dc3545; 
+            color: #dc3545;
+            border: 2px solid #dc3545;
             padding: 6px 20px;
-            text-decoration: none; 
-            font-weight: bold; 
+            text-decoration: none;
+            font-weight: bold;
             font-size: 0.85rem;
-            transition: all 0.3s ease; 
+            transition: all 0.3s ease;
             background: transparent;
-            border-radius: 4px; 
-            text-transform: uppercase; 
+            border-radius: 4px;
+            text-transform: uppercase;
             letter-spacing: 1px;
 
             /* Upgraded */
@@ -187,9 +185,9 @@
         }
 
         .btn-neon:hover {
-            background-color: #dc3545; 
+            background-color: #dc3545;
             color: white;
-            box-shadow: 0 0 20px rgba(220, 53, 69, 0.7), 0 0 40px rgba(220,53,69,0.3); 
+            box-shadow: 0 0 20px rgba(220, 53, 69, 0.7), 0 0 40px rgba(220,53,69,0.3);
             transform: translateY(-2px);
         }
 
@@ -200,33 +198,33 @@
         /* ============================================
            FOOTER LINKS (original classes, upgraded)
         ============================================ */
-        .footer-link { 
-            color: #adb5bd; 
-            text-decoration: none; 
-            transition: all 0.2s ease; 
+        .footer-link {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: all 0.2s ease;
         }
 
-        .footer-link:hover { 
-            color: #fff; 
-            padding-left: 5px; 
+        .footer-link:hover {
+            color: #fff;
+            padding-left: 5px;
         }
 
         .social-btn {
-            width: 35px; 
-            height: 35px; 
-            display: flex; 
-            align-items: center; 
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            background-color: rgba(255,255,255,0.1); 
-            color: white; 
+            background-color: rgba(255,255,255,0.1);
+            color: white;
             border-radius: 50%;
-            text-decoration: none; 
+            text-decoration: none;
             transition: all 0.3s ease;
         }
 
-        .social-btn:hover { 
-            background-color: #dc3545; 
-            color: white; 
+        .social-btn:hover {
+            background-color: #dc3545;
+            color: white;
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(220,53,69,0.5);
         }
@@ -266,8 +264,8 @@
             background: linear-gradient(135deg, rgba(30,30,38,0.95) 0%, rgba(20,20,26,0.98) 100%) !important;
             border: 1px solid rgba(220,53,69,0.2) !important;
             box-shadow:
-                0 4px 20px rgba(0,0,0,0.4),
-                inset 0 1px 0 rgba(255,255,255,0.04) !important;
+                    0 4px 20px rgba(0,0,0,0.4),
+                    inset 0 1px 0 rgba(255,255,255,0.04) !important;
             backdrop-filter: blur(12px);
             color: #e2e2ec !important;
         }
@@ -275,9 +273,9 @@
         .card:hover {
             transform: translateY(-5px);
             box-shadow:
-                0 10px 40px rgba(0,0,0,0.5),
-                0 0 0 1px rgba(220,53,69,0.35),
-                0 0 30px rgba(220,53,69,0.1) !important;
+                    0 10px 40px rgba(0,0,0,0.5),
+                    0 0 0 1px rgba(220,53,69,0.35),
+                    0 0 30px rgba(220,53,69,0.1) !important;
         }
 
         .card::before {
@@ -333,8 +331,8 @@
             pointer-events: none;
             z-index: 0;
             background-image:
-                linear-gradient(rgba(220,53,69,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(220,53,69,0.025) 1px, transparent 1px);
+                    linear-gradient(rgba(220,53,69,0.025) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(220,53,69,0.025) 1px, transparent 1px);
             background-size: 60px 60px;
         }
 
@@ -363,8 +361,8 @@
             border-top: 1px solid transparent !important;
             border-image: linear-gradient(90deg, transparent, #dc3545, transparent) 1 !important;
             box-shadow:
-                0 -8px 40px rgba(0,0,0,0.5),
-                0 -1px 0 rgba(220,53,69,0.3) !important;
+                    0 -8px 40px rgba(0,0,0,0.5),
+                    0 -1px 0 rgba(220,53,69,0.3) !important;
             position: relative;
         }
 
@@ -523,17 +521,17 @@
 
     <div class="container-fluid">
 
-        <a class="navbar-brand fst-italic fw-bold fs-3 text-uppercase" 
-           th:href="@{/}" 
+        <a class="navbar-brand fst-italic fw-bold fs-3 text-uppercase"
+           th:href="@{/}"
            style="letter-spacing: 2px;">
 
             <i class="bi bi-controller text-danger"></i>
             Pro<span class="text-danger">Teams</span>
         </a>
 
-        <button class="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
                 data-bs-target="#teamNav">
 
             <span class="navbar-toggler-icon"></span>
@@ -565,44 +563,54 @@
 
             <div class="d-flex align-items-center gap-3">
 
-                <!-- GOOGLE TRANSLATE -->
                 <div id="google_translate_element"></div>
 
                 <script type="text/javascript">
-                function googleTranslateElementInit() {
-                    new google.translate.TranslateElement({
-                        pageLanguage: 'fr',
-                        includedLanguages: 'fr,es,en,pt,it,de,nl,ja,ko,zh-CN,ru,ar,hi,tr,pl',
-                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                        autoDisplay: false
-                    }, 'google_translate_element');
-                }
+                    function googleTranslateElementInit() {
+                        new google.translate.TranslateElement({
+                            pageLanguage: 'fr',
+                            includedLanguages: 'fr,es,en,pt,it,de,nl,ja,ko,zh-CN,ru,ar,hi,tr,pl',
+                            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                            autoDisplay: false
+                        }, 'google_translate_element');
+                    }
                 </script>
 
                 <script type="text/javascript"
-                src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+                        src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
                 </script>
 
                 <div th:unless="${session.user != null}">
-                    <a th:href="@{/login}" 
+                    <a th:href="@{/login}"
                        class="btn btn-neon me-3 rounded-0 px-4 fw-bold text-uppercase fst-italic">
 
                         Connexion
                     </a>
 
-                    <a th:href="@{/register}" 
+                    <a th:href="@{/register}"
                        class="btn btn-danger me-3 rounded-0 px-4 fw-bold text-uppercase fst-italic">
 
                         Rejoindre
                     </a>
                 </div>
 
+                <div th:if="${session.user != null}" class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="bg-secondary rounded text-center me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-weight: bold;">
+                            <span th:text="${#strings.substring(session.user.username, 0, 1)}">U</span>
+                        </div>
+                        <span class="text-uppercase fw-bold small" th:text="${session.user.username}">USER</span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg rounded-0 border-danger border-top">
+                        <li><a class="dropdown-item" th:href="@{/setting}"><i class="bi bi-gear"></i> Paramètres</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" th:href="@{/logout}"><i class="bi bi-power"></i> Déconnexion</a></li>
+                    </ul>
+                </div>
             </div>
-
         </div>
-
     </div>
-
 </nav>
 
 <main class="container py-4 flex-grow-1">
