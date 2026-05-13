@@ -11,16 +11,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import fr.cytech.pau.hia_jee.model.User;
 import fr.cytech.pau.hia_jee.service.UserService;
+import fr.cytech.pau.hia_jee.repository.UserRepository; // <-- AÑADIDO
 import jakarta.servlet.http.HttpSession;
 
 //Contrôleur gérant la page de "Paramètres" (Settings) de l'utilisateur.
 
 @Controller
-@RequestMapping("/setting") 
+@RequestMapping("/setting")
 public class SettingController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository; // <-- AÑADIDO para guardar la imagen fácilmente
 
     // ============================================================
     // AFFICHER LA PAGE DES PARAMÈTRES
@@ -29,9 +33,9 @@ public class SettingController {
     @GetMapping
     public String showSettings(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
-        
+
         // Sécurité manuelle : Si l'utilisateur n'est pas connecté, on le renvoie au login.
-        if (user == null) return "redirect:/login"; 
+        if (user == null) return "redirect:/login";
 
         // On passe l'utilisateur au modèle pour pré-remplir les champs (pseudo, etc.)
         model.addAttribute("user", user);
@@ -39,30 +43,36 @@ public class SettingController {
     }
 
     // ============================================================
-    // ACTION : CHANGER PSEUDO
+    // ACTION : CHANGER PSEUDO ET PHOTO DE PROFIL
     // ============================================================
 
     @PostMapping("/update-profile")
-    public String updateProfile(@RequestParam String username, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updateProfile(@RequestParam String username,
+                                @RequestParam(value = "profileImageUrl", required = false) String profileImageUrl, // <-- AÑADIDO
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
         User sessionUser = (User) session.getAttribute("user");
         if (sessionUser == null) return "redirect:/login";
 
         try {
-            // 1. Appel au service pour mise à jour en base de données
+            // 1. Appel au service pour mise à jour du pseudo en base de données
             User updatedUser = userService.updateUsername(sessionUser.getId(), username);
-            
-            // 2. MISE À JOUR DE LA SESSION (Crucial !)
-            // L'objet "user" en session est une copie. Si on change la BDD mais pas la session,
-            // le nom affiché dans la barre de navigation restera l'ancien jusqu'à la prochaine reconnexion.
+
+            // 2. 🔥 MISE À JOUR DE LA PHOTO DE PROFIL 🔥
+            if (profileImageUrl != null) {
+                updatedUser.setProfileImageUrl(profileImageUrl);
+                updatedUser = userRepository.save(updatedUser); // On sauvegarde l'image en BDD
+            }
+
+            // 3. MISE À JOUR DE LA SESSION (Crucial !)
             session.setAttribute("user", updatedUser);
-            
-            // 3. Message flash (s'affichera une seule fois après la redirection)
-            redirectAttributes.addFlashAttribute("success", "Pseudo mis à jour avec succès !");
+
+            // 4. Message flash
+            redirectAttributes.addFlashAttribute("success", "Profil mis à jour avec succès !");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        
-        // On redirige vers la page GET pour éviter de renvoyer le formulaire si on actualise (F5)
+
         return "redirect:/setting";
     }
 
@@ -71,16 +81,15 @@ public class SettingController {
     // ============================================================
 
     @PostMapping("/update-password")
-    public String updatePassword(@RequestParam String currentPassword, 
-                                 @RequestParam String newPassword, 
+    public String updatePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
                                  @RequestParam String confirmPassword,
-                                 HttpSession session, 
+                                 HttpSession session,
                                  RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/login";
 
         try {
-            // Le service gère toute la logique complexe (vérification ancien mdp, hachage nouveau mdp, etc.)
             userService.updatePassword(user.getId(), currentPassword, newPassword, confirmPassword);
             redirectAttributes.addFlashAttribute("success", "Mot de passe modifié !");
         } catch (Exception e) {
@@ -99,15 +108,10 @@ public class SettingController {
         if (user == null) return "redirect:/login";
 
         try {
-            // 1. Mise à jour en Base de Données
             userService.leaveTeam(user.getId());
-            
-            // 2. Mise à jour de la Session
-            // On doit manuellement dire à l'objet en session qu'il n'a plus d'équipe,
-            // sinon l'interface affichera encore "Mon Équipe" au lieu de disparaître.
             user.setTeam(null);
             session.setAttribute("user", user);
-            
+
             redirectAttributes.addFlashAttribute("success", "Vous avez quitté l'équipe.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -119,16 +123,12 @@ public class SettingController {
     // ACTION : SUPPRIMER COMPTE
     // ============================================================
 
-   
     @PostMapping("/delete-account")
     public String deleteAccount(HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user != null) {
-            // Suppression en BDD
             userService.deleteAccount(user.getId());
-            
-            // Destruction de la session (déconnexion immédiate)
-            session.invalidate(); 
+            session.invalidate();
         }
         return "redirect:/"; // Retour à l'accueil publique
     }

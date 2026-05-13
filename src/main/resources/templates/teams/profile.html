@@ -16,6 +16,7 @@
 
     <div class="p-5 mb-4 bg-dark text-white rounded-3 shadow position-relative overflow-hidden border border-secondary">
         <div class="d-flex align-items-center flex-wrap gap-4">
+
             <img th:src="${team.logoUrl != null && !team.logoUrl.isEmpty() ? team.logoUrl : 'https://placehold.co/150x150/333/FFF?text=' + #strings.substring(team.name,0,1)}"
                  alt="Logo" class="rounded-circle border border-4 border-danger shadow"
                  style="width: 120px; height: 120px; object-fit: cover;">
@@ -30,10 +31,36 @@
                     </span>
                 </div>
 
-                <div th:if="${isLeader}" class="mt-3">
-                    <form th:action="@{/teams/edit-logo}" method="post" class="d-flex gap-2" style="max-width: 400px;">
-                        <input type="url" name="logoUrl" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Lien URL du nouveau logo..." required>
-                        <button type="submit" class="btn btn-sm btn-outline-warning text-uppercase fw-bold"><i class="bi bi-image"></i> Modifier</button>
+                <div th:if="${isLeader}" class="mt-4 bg-secondary bg-opacity-10 p-3 rounded border border-secondary" style="max-width: 450px;">
+                    <h6 class="text-warning small text-uppercase mb-2"><i class="bi bi-image"></i> Modifier le logo de l'équipe</h6>
+
+                    <form th:action="@{/teams/edit-logo}" method="post">
+                        <ul class="nav nav-pills nav-fill mb-2 bg-dark p-1 rounded" style="font-size: 0.8rem;" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active py-1 fw-bold" id="tab-url-edit-btn" data-bs-toggle="pill" data-bs-target="#tab-url-edit" type="button" role="tab">URL</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link py-1 fw-bold" id="tab-file-edit-btn" data-bs-toggle="pill" data-bs-target="#tab-file-edit" type="button" role="tab">Fichier</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content mb-2">
+                            <div class="tab-pane fade show active" id="tab-url-edit" role="tabpanel">
+                                <input type="url" class="form-control form-control-sm bg-dark text-white border-secondary" id="logoUrlEditInput" placeholder="Nouvelle URL...">
+                            </div>
+                            <div class="tab-pane fade" id="tab-file-edit" role="tabpanel">
+                                <input type="file" class="form-control form-control-sm bg-dark text-white border-secondary" id="logoFileEditInput" accept="image/*">
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="logoUrlEdit" name="logoUrl" th:value="${team.logoUrl}">
+
+                        <div id="logoPreviewEditWrapper" class="d-flex align-items-center mb-2" style="display: none !important;">
+                            <img id="logoPreviewEdit" src="" style="height: 40px; width: 40px; border-radius: 50%; border: 1px solid #ffc107; object-fit: cover;">
+                            <button type="button" id="logoEditRemove" class="btn btn-sm btn-link text-danger p-0 ms-2"><i class="bi bi-x-circle-fill"></i> Annuler l'image</button>
+                        </div>
+
+                        <button type="submit" class="btn btn-sm btn-warning w-100 fw-bold text-dark text-uppercase"><i class="bi bi-upload"></i> Sauvegarder</button>
                     </form>
                 </div>
             </div>
@@ -62,30 +89,29 @@
     </div>
 
     <div class="row g-4">
-
         <div class="col-lg-8">
-            <div class="card shadow border-0 h-100">
-                <div class="card-header bg-white py-3 border-bottom border-danger border-2">
-                    <h4 class="mb-0 text-dark fw-bold text-uppercase"><i class="bi bi-people-fill text-danger"></i> Effectif</h4>
+            <div class="card shadow border-0 h-100 bg-dark text-white border-secondary">
+                <div class="card-header bg-dark py-3 border-bottom border-danger border-2">
+                    <h4 class="mb-0 fw-bold text-uppercase"><i class="bi bi-people-fill text-danger"></i> Effectif</h4>
                 </div>
-                <div class="list-group list-group-flush">
-                    <div th:each="member : ${team.members}" class="list-group-item d-flex justify-content-between align-items-center py-3">
-                        <div class="d-flex align-items-center">
+                <div class="list-group list-group-flush bg-dark">
+                    <div th:each="member : ${team.members}" class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center py-3">
 
+                        <div class="d-flex align-items-center">
                             <img th:if="${member.profileImageUrl != null and !member.profileImageUrl.isEmpty()}"
                                  th:src="${member.profileImageUrl}"
                                  class="rounded-circle me-3 border border-secondary object-fit-cover"
                                  style="width: 45px; height: 45px;" alt="Profil">
 
                             <div th:unless="${member.profileImageUrl != null and !member.profileImageUrl.isEmpty()}"
-                                 class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3 text-secondary border"
+                                 class="bg-secondary bg-opacity-50 rounded-circle d-flex align-items-center justify-content-center me-3 text-light border border-secondary"
                                  style="width: 45px; height: 45px;">
-                                <i class="bi bi-person-fill fs-4"></i>
+                                <span class="fw-bold fs-5" th:text="${#strings.substring(member.username, 0, 1)}">U</span>
                             </div>
 
                             <div>
                                 <h5 class="mb-0 fw-bold">
-                                    <a th:href="@{/players/{id}(id=${member.id})}" class="text-primary text-decoration-none text-uppercase" th:text="${member.username}">Pseudo</a>
+                                    <a th:href="@{/players/{id}(id=${member.id})}" class="text-info text-decoration-none text-uppercase" th:text="${member.username}">Pseudo</a>
                                 </h5>
                                 <small class="text-uppercase text-muted" th:text="${member.role != null ? member.role : 'Membre'}">ROLE</small>
                             </div>
@@ -118,14 +144,13 @@
         </div>
 
         <div class="col-lg-4">
-
-            <div class="card shadow border-0 mb-4">
+            <div class="card shadow border-0 mb-4 bg-dark text-white border-secondary">
                 <div class="card-body">
-                    <h5 class="card-title fw-bold text-uppercase mb-3">Action</h5>
+                    <h5 class="card-title fw-bold text-uppercase mb-3 border-bottom border-danger pb-2">Action</h5>
 
                     <div th:unless="${session.user != null}" class="text-center">
                         <p class="small text-muted">Connectez-vous pour interagir avec cette équipe.</p>
-                        <a th:href="@{/login}" class="btn btn-dark w-100">Se connecter</a>
+                        <a th:href="@{/login}" class="btn btn-outline-light w-100">Se connecter</a>
                     </div>
 
                     <div th:if="${canJoin}">
@@ -137,11 +162,84 @@
                     </div>
 
                     <div th:if="${isMember}">
-                        <div class="alert alert-success py-2 text-center small mb-3">
-                            <i class="bi bi-check-circle"></i> Vous êtes membre.
+                        <div class="alert alert-success py-2 text-center small mb-3 border-0 bg-success bg-opacity-25 text-success">
+                            <i class="bi bi-check-circle-fill"></i> Vous êtes membre de l'équipe.
                         </div>
 
                         <form th:unless="${isLeader}" th:action="@{/teams/leave}" method="post"
                               onsubmit="return confirm('Quitter cette équipe ?');">
                             <button type="submit" class="btn btn-outline-warning w-100">
                                 <i class="bi bi-box-arrow-right"></i> Quitter l'équipe
+                            </button>
+                        </form>
+
+                        <form th:if="${isLeader}" th:action="@{/teams/disband}" method="post"
+                              onsubmit="return confirm('ATTENTION : Voulez-vous vraiment dissoudre l\'équipe ? Cette action est irréversible.');">
+                            <button type="submit" class="btn btn-danger w-100 mt-2 fw-bold text-uppercase">
+                                <i class="bi bi-trash3-fill"></i> Dissoudre l'équipe
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const urlInput = document.getElementById('logoUrlEditInput');
+            const fileInput = document.getElementById('logoFileEditInput');
+            const hiddenInput = document.getElementById('logoUrlEdit');
+            const previewImg = document.getElementById('logoPreviewEdit');
+            const previewWrap = document.getElementById('logoPreviewEditWrapper');
+            const removeBtn = document.getElementById('logoEditRemove');
+
+            const MAX_DIM = 400; // Máxima resolución para evitar Base64 gigantes
+
+            urlInput.addEventListener('input', function() {
+                const val = urlInput.value.trim();
+                if (val) {
+                    hiddenInput.value = val;
+                    previewImg.src = val;
+                    previewWrap.style.setProperty('display', 'flex', 'important');
+                }
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = new Image();
+                    img.onload = function() {
+                        let w = img.width, h = img.height;
+                        if (w > h && w > MAX_DIM) { h = Math.round(h * MAX_DIM/w); w = MAX_DIM; }
+                        else if (h > MAX_DIM) { w = Math.round(w * MAX_DIM/h); h = MAX_DIM; }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const b64 = canvas.toDataURL('image/jpeg', 0.85);
+
+                        previewImg.src = b64;
+                        hiddenInput.value = b64;
+                        previewWrap.style.setProperty('display', 'flex', 'important');
+                        urlInput.value = '';
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            removeBtn.addEventListener('click', function() {
+                hiddenInput.value = '';
+                previewImg.src = '';
+                previewWrap.style.setProperty('display', 'none', 'important');
+                urlInput.value = '';
+                fileInput.value = '';
+            });
+        })();
+    </script>
+</div>
+
+</body>
+</html>

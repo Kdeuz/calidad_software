@@ -34,10 +34,36 @@
                             <span class="badge bg-primary mt-2 ms-1"><i class="bi bi-star-fill text-warning"></i> ELO: <span th:text="${player.elo}">1200</span></span>
                         </div>
 
-                        <div th:if="${session.user != null and session.user.id == player.id}" class="mt-4 d-flex justify-content-center">
-                            <form th:action="@{/profile/edit-photo}" method="post" class="d-flex gap-2" style="width: 100%; max-width: 350px;">
-                                <input type="url" name="photoUrl" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="URL de votre nouvelle photo..." required>
-                                <button type="submit" class="btn btn-sm btn-outline-light"><i class="bi bi-camera-fill"></i> Changer</button>
+                        <div th:if="${session.user != null and session.user.id == player.id}" class="mt-4 bg-secondary bg-opacity-10 p-3 rounded border border-secondary" style="max-width: 450px; margin: 0 auto;">
+                            <h6 class="text-warning small text-uppercase mb-2"><i class="bi bi-camera-fill"></i> Changer ma photo</h6>
+
+                            <form th:action="@{/profile/edit-photo}" method="post">
+                                <ul class="nav nav-pills nav-fill mb-2 bg-dark p-1 rounded" style="font-size: 0.8rem;" role="tablist">
+                                    <li class="nav-item">
+                                        <button class="nav-link active py-1 fw-bold" id="tab-url-edit-btn" data-bs-toggle="pill" data-bs-target="#tab-url-edit" type="button" role="tab">URL</button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button class="nav-link py-1 fw-bold" id="tab-file-edit-btn" data-bs-toggle="pill" data-bs-target="#tab-file-edit" type="button" role="tab">Fichier</button>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content mb-2">
+                                    <div class="tab-pane fade show active" id="tab-url-edit" role="tabpanel">
+                                        <input type="url" class="form-control form-control-sm bg-dark text-white border-secondary" id="logoUrlEditInput" placeholder="Nouvelle URL...">
+                                    </div>
+                                    <div class="tab-pane fade" id="tab-file-edit" role="tabpanel">
+                                        <input type="file" class="form-control form-control-sm bg-dark text-white border-secondary" id="logoFileEditInput" accept="image/*">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="logoUrlEdit" name="photoUrl" th:value="${player.profileImageUrl}">
+
+                                <div id="logoPreviewEditWrapper" class="d-flex align-items-center mb-2" style="display: none !important;">
+                                    <img id="logoPreviewEdit" src="" style="height: 40px; width: 40px; border-radius: 50%; border: 1px solid #ffc107; object-fit: cover;">
+                                    <button type="button" id="logoEditRemove" class="btn btn-sm btn-link text-danger p-0 ms-2"><i class="bi bi-x-circle-fill"></i> Annuler l'image</button>
+                                </div>
+
+                                <button type="submit" class="btn btn-sm btn-warning w-100 fw-bold text-dark text-uppercase"><i class="bi bi-upload"></i> Sauvegarder</button>
                             </form>
                         </div>
                     </div>
@@ -102,6 +128,61 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const urlInput = document.getElementById('logoUrlEditInput');
+            const fileInput = document.getElementById('logoFileEditInput');
+            const hiddenInput = document.getElementById('logoUrlEdit');
+            const previewImg = document.getElementById('logoPreviewEdit');
+            const previewWrap = document.getElementById('logoPreviewEditWrapper');
+            const removeBtn = document.getElementById('logoEditRemove');
+
+            const MAX_DIM = 400;
+
+            urlInput.addEventListener('input', function() {
+                const val = urlInput.value.trim();
+                if (val) {
+                    hiddenInput.value = val;
+                    previewImg.src = val;
+                    previewWrap.style.setProperty('display', 'flex', 'important');
+                }
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = new Image();
+                    img.onload = function() {
+                        let w = img.width, h = img.height;
+                        if (w > h && w > MAX_DIM) { h = Math.round(h * MAX_DIM/w); w = MAX_DIM; }
+                        else if (h > MAX_DIM) { w = Math.round(w * MAX_DIM/h); h = MAX_DIM; }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const b64 = canvas.toDataURL('image/jpeg', 0.85);
+
+                        previewImg.src = b64;
+                        hiddenInput.value = b64;
+                        previewWrap.style.setProperty('display', 'flex', 'important');
+                        urlInput.value = '';
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            removeBtn.addEventListener('click', function() {
+                hiddenInput.value = '';
+                previewImg.src = '';
+                previewWrap.style.setProperty('display', 'none', 'important');
+                urlInput.value = '';
+                fileInput.value = '';
+            });
+        })();
+    </script>
 </section>
 
 </body>

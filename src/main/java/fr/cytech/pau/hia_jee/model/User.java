@@ -29,6 +29,7 @@ public class User {
     public int getElo() { return elo; }
     public void setElo(int elo) { this.elo = elo; }
 
+    @Column(columnDefinition = "TEXT")
     private String profileImageUrl;
 
     public String getProfileImageUrl() { return profileImageUrl; }

@@ -338,7 +338,7 @@ public class TeamController {
     /**
      * Permet au LEADER de dissoudre l'équipe (supprimer l'équipe pour tout le monde).
      */
-    @PostMapping("/dissolve")
+    @PostMapping("/disband")
     public String dissolveTeam(HttpSession session, RedirectAttributes redirectAttributes) {
         User sessionUser = (User) session.getAttribute("user");
         if (sessionUser == null) return "redirect:/login";

@@ -35,6 +35,9 @@ public class Team {
 
     private int tournamentWins = 0;
 
+    @Column(columnDefinition = "TEXT")
+    private String logoUrl;
+
     @Column(nullable = false)
     private int elo = 1200; // Puntaje inicial estándar
 
@@ -45,8 +48,6 @@ public class Team {
     // Le nom doit être unique en base de données pour éviter les doublons
     @Column(nullable = false, unique = true)
     private String name;
-
-    private String logoUrl;
 
     /**
      * Code unique permettant de rejoindre l'équipe via un lien direct.
